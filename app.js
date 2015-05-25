@@ -45,7 +45,7 @@ app.get('/submit', function (req, res) {
             s += (sub.count) ? 'Re-submission #' + sub.count : 'First submission';
             s += ' : ' + moment(sub.date).format("DD MMM YY @ HH:mm") + '\n';
             s += (sub.isDir) ? 'Submitted Directory: ' : 'Submitted File: ';
-            s += sub.fullpath + '\n' + Array(32).join('-') + '\n\n';
+            s += sub.fullPath + '\n' + Array(32).join('-') + '\n\n';
             res.write(s);
             res.end();
         }, function (err) {
