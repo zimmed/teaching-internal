@@ -61,6 +61,23 @@ app.get('/submit', function (req, res) {
     }
 });
 
+app.get('/getlog', function (req, res) {
+    submission.getLogs().then(function (data) {
+        res.json(data);
+    }, function (err) {
+        res.json(err);
+    });
+});
+
+app.get('/getassign/:assign?', function (req, res) {
+    var query = (req.params.assign) ? {assign: req.params.assign} : {};
+    submission.getSubs(query).then(function (data) {
+        res.json(data);
+    }, function (err) {
+        res.json(err);
+    });
+});
+
 app.use('/', index);
 
 var server = app.listen(8090, function () {
