@@ -1,7 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 var moment = require('moment');
-var submission = require('./lib/submission');
+var submission = require('../lib/submission');
 var router = express.Router();
 
 router.get('/', function (req, res) {
