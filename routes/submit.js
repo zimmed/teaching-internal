@@ -14,7 +14,7 @@ router.get('/', function (req, res) {
     res.write('Submission received. Processing...\n');
     if (!user || !assign || !apath ||
         !fs.existsSync(apath) || !(astats = submission.getStats(assign))) {
-        submission.addError('Bad submission request from: ' + user, req.query);
+        submission.addLog('Bad submission request from: ' + user, req.query);
         res.write(s + '\nSubmission failed! 400: Bad Request' + s + '\n\n');
         res.end();
     } else {
@@ -28,7 +28,7 @@ router.get('/', function (req, res) {
             res.write(s);
             res.end();
         }, function (err) {
-            submission.addError('Submission failed: ' + JSON.stringify({
+            submission.addLog('Submission failed: ' + JSON.stringify({
                     user: user,
                     assignment: assign,
                     path: apath,
