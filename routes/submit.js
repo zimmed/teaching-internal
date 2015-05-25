@@ -15,7 +15,8 @@ router.get('/', function (req, res) {
     if (!user || !assign || !apath ||
         !fs.existsSync(apath) || !(astats = submission.getStats(assign))) {
         submission.addError('Bad submission request from: ' + user, req.query);
-        res.send(s + '\nSubmission failed! 400: Bad Request' + s + '\n\n');
+        res.write(s + '\nSubmission failed! 400: Bad Request' + s + '\n\n');
+        res.end();
     } else {
         res.write('Saving submission (may take a minute)...\n');
         submission.addSubmission(astats, user, assign, apath, date).then(function (sub) {
@@ -24,7 +25,8 @@ router.get('/', function (req, res) {
             s += ' : ' + moment(sub.date).format("DD MMM YY @ HH:mm") + '\n';
             s += (sub.isDir) ? 'Submitted Directory: ' : 'Submitted File: ';
             s += sub.fullpath + '\n' + Array(32).join('-') + '\n\n';
-            res.send(s);
+            res.write(s);
+            res.end();
         }, function (err) {
             submission.addError('Submission failed: ' + JSON.stringify({
                     user: user,
@@ -32,7 +34,8 @@ router.get('/', function (req, res) {
                     path: apath,
                     error: err
                 }));
-            res.send(s + '\nSubmission failed! 500 Internal Server Error' + s + '\n\n');
+            res.write(s + '\nSubmission failed! 500 Internal Server Error' + s + '\n\n');
+            res.end();
         });
     }
 });
