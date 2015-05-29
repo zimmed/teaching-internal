@@ -31,25 +31,62 @@ app.get('/submit', function (req, res) {
         user = req.query.user,
         assign = req.query.assign,
         apath = req.query.path,
+        token = req.query.token,
         date = +new Date();
-    res.write('Submission received. Processing...\n');
-    if (!user || !assign || !apath ||
-        !fs.existsSync(apath) || !(astats = submission.getStats(assign))) {
-        submission.addLog('Bad submission request from: ' + user, req.query);
+    res.write('\nSubmission received. Processing...\n');
+    // Bad request fields
+    if (!user || !assign || !apath) {
+        submission.addLog('Bad submission request.');
         res.write(s + '\nSubmission failed! 400: Bad Request' + s + '\n\n');
+        res.end();
+    // Submitted file doesn't exist
+    } else if (!fs.existsSync(apath)) {
+        submission.addLog('Incorrect submission request from: ' + user, req.query);
+        res.write(s + '\nSubmission failed! 400: Bad Request');
+        res.write('\nMessage: File specified does not exist.');
+        res.write('\n\tRemember, the usage is: $ submit <assignment> <path/to/work>');
+        res.write('\n' + s + '\n\n');
+        res.end();
+    // Submitted assignment doesn't exist
+    } else if (!(astats = submission.getStats(assign))) {
+        submission.addLog('Incorrect submission request from: ' + user, req.query);
+        res.write(s + '\nSubmission failed! 400: Bad Request');
+        res.write('\nMessage: Assignment specified does not exist.');
+        if (astats.allOpen && astats.allOpen.length) {
+            res.write('\nAll currently open assignments:');
+            res.write('\n\t' + astats.allOpen.join(', '));
+        }
+        res.write('\n\tRemember, the usage is: $ submit <assignment> <path/to/work>');
+        res.write('\n' + s + '\n\n');
+        res.end();
+    // Past assignment cut-off date
+    } else if (moment().diff(astats.data.cutoff, 'seconds') > 0 &&
+               !(token && token === astats.data.token)) {
+        submission.addLog('Too-late submission request from ' + user +
+                          ' for ' + assign + '.', req.query);
+        res.write(s + '\nSubmission failed! 400: Bad Request');
+        res.write('\nMessage: You have missed the assignment cutoff date.');
+        res.write('\n' + assign + ': ' + astats.data.name);
+        res.write('\n\tDue: ' + astats.data.due.format('MMMM Do, h:mm a'));
+        res.write('\n\tCut-off: ' + astats.data.cutoff.format('MMMM Do, h:mm a'));
+        res.write('\n' + s + '\n\n');
         res.end();
     } else {
         res.write('Saving submission (may take a minute)...\n');
-        submission.addSubmission(astats, user, assign, apath, date).then(function (sub) {
-            s += 'Submission for `' + sub.assign + '` Succeeded!\n';
+        var late = (moment().diff(astats.data.due) > 0);
+        submission.addSubmission(
+                astats, user, assign, apath, date, late).then(function (sub) {
+            s += '\nSubmission for `' + sub.assign + '` Succeeded!\n';
+            s += 'Assignment ' + sub.assign + ': ' + astats.name + '\n';
             s += (sub.count) ? 'Re-submission #' + sub.count : 'First submission';
-            s += ' : ' + moment(sub.date).format("DD MMM YY @ HH:mm") + '\n';
-            s += (sub.isDir) ? 'Submitted Directory: ' : 'Submitted File: ';
-            s += sub.fullPath + '\n' + Array(32).join('-') + '\n\n';
+            s += ' : ' + moment(sub.date).format("DD MMM YY @ HH:mm");
+            if (late) s += ' (LATE!)';
+            s += '\n' + (sub.isDir) ? 'Submitted Directory: ' : 'Submitted File: ';
+            s += sub.fullPath + '\n' + 'id: ' + sub._id + '\n';
+            s += Array(32).join('-') + '\n\n';
             res.write(s);
             res.end();
         }, function (err) {
-            console.log('Addsubmission failed.');
             submission.addLog('Submission failed: ' + JSON.stringify({
                     user: user,
                     assignment: assign,

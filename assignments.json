@@ -1,5 +1,10 @@
 {
   "basePath" : "/home/zimmed/.TEACHING/assignments",
 
-  "a0" : true
+  "a0" : {
+      name: "Test assignment",
+      due: "2015-05-28 23:59",
+      cutoff: "2015-05-30 23:59",
+      token: "notoken0029384756"
+  }
 }
