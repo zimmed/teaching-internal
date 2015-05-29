@@ -49,6 +49,7 @@ app.get('/submit', function (req, res) {
             res.write(s);
             res.end();
         }, function (err) {
+            console.log('Addsubmission failed.');
             submission.addLog('Submission failed: ' + JSON.stringify({
                     user: user,
                     assignment: assign,
