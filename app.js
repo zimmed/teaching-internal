@@ -63,7 +63,7 @@ app.get('/submit', function (req, res) {
     } else if (moment().diff(astats.data.cutoff, 'seconds') > 0 &&
                !(token && token === astats.data.token)) {
         submission.addLog('Too-late submission request from ' + user +
-                          ' for ' + assign + '.', req.query);
+                          ' for ' + assign + '.', {});
         res.write(s + '\nSubmission failed! 400: Bad Request');
         res.write('\nMessage: You have missed the assignment cutoff date.');
         res.write('\n' + assign + ': ' + astats.data.name);
@@ -77,11 +77,11 @@ app.get('/submit', function (req, res) {
         submission.addSubmission(
                 astats.path, user, assign, apath, date, late).then(function (sub) {
             s += '\nSubmission for `' + sub.assign + '` Succeeded!\n';
-            s += 'Assignment ' + sub.assign + ': ' + astats.name + '\n';
+            s += 'Assignment ' + sub.assign + ': ' + astats.data.name + '\n';
             s += (sub.count) ? 'Re-submission #' + sub.count : 'First submission';
             s += ' : ' + moment(sub.date).format("DD MMM YY @ HH:mm");
             if (late) s += ' (LATE!)';
-            s += '\n' + (sub.isDir) ? 'Submitted Directory: ' : 'Submitted File: ';
+            s += (sub.isDir) ? '\nSubmitted Directory: ' : '\nSubmitted File: ';
             s += sub.fullPath + '\n' + 'id: ' + sub._id + '\n';
             s += Array(32).join('-') + '\n\n';
             res.write(s);
