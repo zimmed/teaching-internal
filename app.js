@@ -56,7 +56,7 @@ app.get('/submit', function (req, res) {
             res.write('\nAll currently open assignments:');
             res.write('\n\t' + astats.allOpen.join(', '));
         }
-        res.write('\n\tRemember, the usage is: $ submit <assignment> <path/to/work>');
+        res.write('\n\nRemember, the usage is: $ submit <assignment> <path/to/work>');
         res.write('\n' + s + '\n\n');
         res.end();
     // Past assignment cut-off date
