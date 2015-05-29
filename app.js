@@ -75,7 +75,7 @@ app.get('/submit', function (req, res) {
         res.write('Saving submission (may take a minute)...\n');
         var late = (moment().diff(astats.data.due) > 0);
         submission.addSubmission(
-                astats, user, assign, apath, date, late).then(function (sub) {
+                astats.path, user, assign, apath, date, late).then(function (sub) {
             s += '\nSubmission for `' + sub.assign + '` Succeeded!\n';
             s += 'Assignment ' + sub.assign + ': ' + astats.name + '\n';
             s += (sub.count) ? 'Re-submission #' + sub.count : 'First submission';
